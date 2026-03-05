@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Tienda Urban</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f4f4f4;
+}
+
+/* MENU */
+
+.menu{
+background:black;
+padding:15px;
+display:flex;
+justify-content:center;
+gap:20px;
+}
+
+.menu button{
+background:none;
+border:none;
+color:white;
+font-size:16px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.menu button:hover{
+color:red;
+}
+
+/* TITULO */
+
+.header{
+text-align:center;
+padding:40px;
+background:black;
+color:white;
+}
+
+.header span{
+color:red;
+}
+
+/* PRODUCTOS */
+
+.catalogo{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:30px;
+}
+
+.producto{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.producto img{
+width:100%;
+height:250px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.precio{
+color:red;
+font-weight:bold;
+font-size:20px;
+}
+
+.producto button{
+background:black;
+color:white;
+padding:10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.producto button:hover{
+background:red;
+}
+
+/* CARRITO */
+
+#carritoBtn{
+position:fixed;
+top:20px;
+right:20px;
+background:black;
+color:white;
+padding:10px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+#carritoPanel{
+position:fixed;
+right:-400px;
+top:0;
+width:350px;
+height:100%;
+background:white;
+box-shadow:-5px 0 15px rgba(0,0,0,0.3);
+transition:0.3s;
+display:flex;
+flex-direction:column;
+}
+
+#itemsCarrito{
+flex:1;
+overflow:auto;
+padding:20px;
+}
+
+.item{
+border-bottom:1px solid #ddd;
+padding:10px 0;
+}
+
+.footerCarrito{
+padding:20px;
+border-top:1px solid #ddd;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="menu">
+
+<button onclick="mostrar('all')">Inicio</button>
+<button onclick="mostrar('ropa')">Hombre</button>
+<button onclick="mostrar('damas')">Damas</button>
+<button onclick="mostrar('zapatillas')">Zapatillas</button>
+
+</div>
+
+<div class="header">
+
+<h1>TIENDA <span>URBAN</span></h1>
+<p>Moda urbana y deportiva</p>
+
+</div>
+
+<button id="carritoBtn" onclick="abrirCarrito()">
+🛒 Carrito
+</button>
+
+<div class="catalogo" id="catalogo"></div>
+
+<div id="carritoPanel">
+
+<h2 style="padding:20px;">Tu carrito</h2>
+
+<div id="itemsCarrito"></div>
+
+<div class="footerCarrito">
+
+<h3>Total: <span id="total">S/ 0</span></h3>
+
+<button onclick="comprar()" style="background:green;color:white;padding:10px;width:100%;border:none">
+Comprar por WhatsApp
+</button>
+
+<button onclick="vaciarCarrito()" style="padding:10px;width:100%;margin-top:10px">
+Vaciar carrito
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const productos=[
+
+{id:1,name:"Hoodie Urban Black",price:89.99,category:"ropa",image:"https://images.unsplash.com/photo-1762491116815-7ae20aaafa2e"},
+{id:2,name:"Zapatillas Basketball Elite",price:149.99,category:"zapatillas",image:"https://images.unsplash.com/photo-1617032870223-739a0362a2ec"},
+{id:3,name:"Jogger Pants Premium",price:69.99,category:"ropa",image:"https://images.unsplash.com/photo-1602135918313-aff25ed7dc98"},
+{id:4,name:"Running Shoes Red",price:129.99,category:"zapatillas",image:"https://images.unsplash.com/photo-1762690285055-fa80848e825b"},
+{id:5,name:"Denim Jacket Classic",price:119.99,category:"ropa",image:"https://images.unsplash.com/photo-1769689388217-c3c8fec7099d"},
+{id:6,name:"Essential White Tee",price:39.99,category:"ropa",image:"https://images.unsplash.com/photo-1596122787821-95c4255bb936"},
+{id:7,name:"Skateboard Sneakers",price:99.99,category:"zapatillas",image:"https://images.unsplash.com/photo-1517582837435-fdb3ccb5bb41"},
+{id:8,name:"Cargo Pants Utility",price:79.99,category:"ropa",image:"https://images.unsplash.com/photo-1600803177171-b9fbcc3018f5"},
+
+{id:9,name:"Conjunto Urban Mujer",price:94.99,category:"damas",image:"https://images.unsplash.com/photo-1575633660442-9d3526b47a70"},
+{id:10,name:"Leggings Deportivos",price:59.99,category:"damas",image:"https://images.unsplash.com/photo-1768929096117-c0b04a7c8fc2"},
+{id:11,name:"Crop Top Fitness",price:44.99,category:"damas",image:"https://images.unsplash.com/photo-1750698544794-bf1cd7038f92"},
+{id:12,name:"Hoodie Oversized Mujer",price:99.99,category:"damas",image:"https://images.unsplash.com/photo-1610948174344-a14e7a5d5916"},
+{id:13,name:"Chaqueta Denim Mujer",price:109.99,category:"damas",image:"https://images.unsplash.com/photo-1760551732311-a2893c368b3a"},
+{id:14,name:"Sneakers Blancas Mujer",price:139.99,category:"damas",image:"https://images.unsplash.com/photo-1729016871820-84c64ebbbe1a"}
+
+];
+
+let carrito=[];
+
+function mostrar(cat){
+
+let lista=productos;
+
+if(cat!="all"){
+lista=productos.filter(p=>p.category==cat);
+}
+
+const cont=document.getElementById("catalogo");
+cont.innerHTML="";
+
+lista.forEach(p=>{
+
+cont.innerHTML+=`
+
+<div class="producto">
+
+<img src="${p.image}">
+
+<h3>${p.name}</h3>
+
+<p class="precio">S/ ${p.price}</p>
+
+<button onclick="agregarCarrito(${p.id})">
+Agregar al carrito
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+function agregarCarrito(id){
+
+let prod=productos.find(p=>p.id==id);
+
+let item=carrito.find(p=>p.id==id);
+
+if(item){
+item.cantidad++;
+}else{
+carrito.push({...prod,cantidad:1});
+}
+
+actualizarCarrito();
+
+}
+
+function actualizarCarrito(){
+
+let cont=document.getElementById("itemsCarrito");
+cont.innerHTML="";
+
+let total=0;
+
+carrito.forEach((p,i)=>{
+
+total+=p.price*p.cantidad;
+
+cont.innerHTML+=`
+
+<div class="item">
+
+<b>${p.name}</b><br>
+
+S/ ${p.price} x ${p.cantidad}
+
+<button onclick="eliminar(${i})">❌</button>
+
+</div>
+
+`;
+
+});
+
+document.getElementById("total").innerText="S/ "+total.toFixed(2);
+
+}
+
+function eliminar(i){
+
+carrito.splice(i,1);
+
+actualizarCarrito();
+
+}
+
+function vaciarCarrito(){
+
+carrito=[];
+
+actualizarCarrito();
+
+}
+
+function abrirCarrito(){
+
+document.getElementById("carritoPanel").style.right="0";
+
+}
+
+function comprar(){
+
+let mensaje="Hola quiero comprar:%0A";
+
+let total=0;
+
+carrito.forEach(p=>{
+mensaje+=`${p.name} x${p.cantidad} - S/${p.price*p.cantidad}%0A`;
+total+=p.price*p.cantidad;
+});
+
+mensaje+=`Total: S/${total}`;
+
+window.open(`https://wa.me/51999999999?text=${mensaje}`);
+
+}
+
+mostrar("all");
+
+</script>
+
+</body>
+
+</html>
